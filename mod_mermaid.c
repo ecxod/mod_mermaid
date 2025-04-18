@@ -19,7 +19,7 @@ static int mermaid_handler(request_rec *r) {
         return DECLINED;
     }
 
-    // Prüfen, ob die Datei existiert
+    // Pruefen, ob die Datei existiert
     apr_finfo_t finfo;
     if (apr_stat(&finfo, r->filename, APR_FINFO_SIZE, r->pool) != APR_SUCCESS) {
         ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r, "Datei nicht gefunden: %s", r->filename);
@@ -32,23 +32,23 @@ static int mermaid_handler(request_rec *r) {
         return DECLINED;
     }
 
-    // Eindeutige temporäre Ausgabedatei erstellen
+    // Eindeutige temporaere Ausgabedatei erstellen
     char *temp_output = apr_psprintf(r->pool, "/tmp/mermaid_output_%d_%ld.svg", getpid(), (long)time(NULL));
 
-    // mmdc ausführen mit fork/exec
+    // mmdc ausfuehren mit fork/exec
     pid_t pid = fork();
     if (pid == 0) {
-        // Kindprozess: mmdc ausführen
+        // Kindprozess: mmdc ausfuehren
         execl(MERMAID_CLI, "mmdc", "-i", r->filename, "-o", temp_output, "--quiet", NULL);
-        // Wenn execl fehlschlägt
-        ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r, "Fehler beim Ausführen von mmdc: %s", MERMAID_CLI);
+        // Wenn execl fehlschlaegt
+        ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r, "Fehler beim Ausfuehren von mmdc: %s", MERMAID_CLI);
         _exit(1);
     } else if (pid > 0) {
         // Elternprozess: Warten auf Kindprozess
         int status;
         waitpid(pid, &status, 0);
         if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
-            ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r, "mmdc fehlgeschlagen für Datei: %s", r->filename);
+            ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r, "mmdc fehlgeschlagen fuer Datei: %s", r->filename);
             return HTTP_INTERNAL_SERVER_ERROR;
         }
     } else {
@@ -57,16 +57,16 @@ static int mermaid_handler(request_rec *r) {
         return HTTP_INTERNAL_SERVER_ERROR;
     }
 
-    // SVG-Datei öffnen
+    // SVG-Datei oeffnen
     apr_file_t *svg_file;
     apr_status_t rv = apr_file_open(&svg_file, temp_output, APR_READ | APR_BINARY, APR_OS_DEFAULT, r->pool);
     if (rv != APR_SUCCESS) {
-        ap_log_rerror(APLOG_MARK, APLOG_ERR, rv, r, "Konnte SVG-Datei nicht öffnen: %s", temp_output);
+        ap_log_rerror(APLOG_MARK, APLOG_ERR, rv, r, "Konnte SVG-Datei nicht oeffnen: %s", temp_output);
         apr_file_remove(temp_output, r->pool);
         return HTTP_INTERNAL_SERVER_ERROR;
     }
 
-    // Größe der SVG-Datei ermitteln
+    // Groesse der SVG-Datei ermitteln
     apr_off_t svg_size;
     apr_file_info_get(&finfo, APR_FINFO_SIZE, svg_file);
     svg_size = finfo.size;
@@ -77,7 +77,7 @@ static int mermaid_handler(request_rec *r) {
     rv = apr_file_read(svg_file, svg_content, &bytes_read);
     apr_file_close(svg_file);
 
-    // Temporäre Datei löschen
+    // Temporaere Datei loeschen
     apr_file_remove(temp_output, r->pool);
 
     if (rv != APR_SUCCESS || bytes_read != svg_size) {
@@ -100,7 +100,7 @@ static int mermaid_handler(request_rec *r) {
                                 "</html>\n";
     char *html_content = apr_psprintf(r->pool, html_template, svg_content);
 
-    // HTTP-Header für HTML
+    // HTTP-Header fuer HTML
     ap_set_content_type(r, "text/html");
 
     // HTML-Inhalt senden
