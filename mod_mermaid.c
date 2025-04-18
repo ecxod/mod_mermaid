@@ -33,14 +33,14 @@ static int mermaid_handler(request_rec *r) {
     }
 
     // Eindeutige temporaere Ausgabedatei erstellen
-    char *temp_output = apr_psprintf(r->pool, "/tmp/mermaid_output_%d_%ld.svg", getpid(), (long)time(NULL));
+    char *error_output = apr_psprintf(r->pool, "/tmp/mermaid_error_%d_%ld.txt", getpid(), (long)time(NULL));
 
     // mmdc ausfuehren mit fork/exec
     pid_t pid = fork();
     if (pid == 0) {
-        // Kindprozess: mmdc ausfuehren
-        execl(MERMAID_CLI, "mmdc", "-i", r->filename, "-o", temp_output, "--quiet", NULL);
-        // Wenn execl fehlschlaegt
+        // Kindprozess: stderr in Datei umleiten
+        freopen(error_output, "w", stderr);
+        execl(MERMAID_CLI, "mmdc", "-i", r->filename, "-o", temp_output, NULL); // --quiet entfernt, um mehr Ausgabe zu erhalten
         ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r, "Fehler beim Ausfuehren von mmdc: %s", MERMAID_CLI);
         _exit(1);
     } else if (pid > 0) {
@@ -48,11 +48,27 @@ static int mermaid_handler(request_rec *r) {
         int status;
         waitpid(pid, &status, 0);
         if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
-            ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r, "mmdc fehlgeschlagen fuer Datei: %s", r->filename);
+            // Fehlerausgabe lesen
+            apr_file_t *err_file;
+            char *err_content = NULL;
+            apr_size_t err_size = 0;
+            if (apr_file_open(&err_file, error_output, APR_READ, APR_OS_DEFAULT, r->pool) == APR_SUCCESS) {
+                apr_finfo_t err_finfo;
+                apr_file_info_get(&err_finfo, APR_FINFO_SIZE, err_file);
+                err_size = err_finfo.size;
+                if (err_size > 0) {
+                    err_content = apr_palloc(r->pool, err_size + 1);
+                    apr_file_read(err_file, err_content, &err_size);
+                    err_content[err_size] = '\0';
+                }
+                apr_file_close(err_file);
+            }
+            apr_file_remove(error_output, r->pool);
+            ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r, "mmdc fehlgeschlagen fuer Datei: %s. Fehler: %s", 
+                        r->filename, err_content ? err_content : "Keine Fehlerausgabe");
             return HTTP_INTERNAL_SERVER_ERROR;
         }
     } else {
-        // Fork fehlgeschlagen
         ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r, "Fork fehlgeschlagen");
         return HTTP_INTERNAL_SERVER_ERROR;
     }
