@@ -33,14 +33,24 @@ static int mermaid_handler(request_rec *r) {
     }
 
     // Eindeutige temporaere Ausgabedatei erstellen
+    char *temp_output = apr_psprintf(r->pool, "/tmp/mermaid_output_%d_%ld.svg", getpid(), (long)time(NULL));
     char *error_output = apr_psprintf(r->pool, "/tmp/mermaid_error_%d_%ld.txt", getpid(), (long)time(NULL));
 
     // mmdc ausfuehren mit fork/exec
     pid_t pid = fork();
     if (pid == 0) {
-        // Kindprozess: stderr in Datei umleiten
-        freopen(error_output, "w", stderr);
-        execl(MERMAID_CLI, "mmdc", "-i", r->filename, "-o", temp_output, NULL); // --quiet entfernt, um mehr Ausgabe zu erhalten
+        // Kindprozess: Arbeitsverzeichnis und Umgebungsvariablen setzen
+        if (chdir("/tmp") != 0) {
+            ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r, "Fehler beim Wechseln des Arbeitsverzeichnisses nach /tmp");
+            _exit(1);
+        }
+        setenv("PUPPETEER_EXECUTABLE_PATH", "/usr/bin/chromium", 1);
+        setenv("PUPPETEER_CACHE_DIR", "/var/cache/puppeteer", 1);
+        if (freopen(error_output, "w", stderr) == NULL) {
+            ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r, "Fehler beim Umleiten von stderr nach %s", error_output);
+            _exit(1);
+        }
+        execl(MERMAID_CLI, "mmdc", "-i", r->filename, "-o", temp_output, NULL);
         ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r, "Fehler beim Ausfuehren von mmdc: %s", MERMAID_CLI);
         _exit(1);
     } else if (pid > 0) {
@@ -65,13 +75,17 @@ static int mermaid_handler(request_rec *r) {
             }
             apr_file_remove(error_output, r->pool);
             ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r, "mmdc fehlgeschlagen fuer Datei: %s. Fehler: %s", 
-                        r->filename, err_content ? err_content : "Keine Fehlerausgabe");
+                          r->filename, err_content ? err_content : "Keine Fehlerausgabe");
             return HTTP_INTERNAL_SERVER_ERROR;
         }
     } else {
         ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r, "Fork fehlgeschlagen");
+        apr_file_remove(error_output, r->pool);
         return HTTP_INTERNAL_SERVER_ERROR;
     }
+
+    // Temporaere Fehlerdatei loeschen (falls noch vorhanden)
+    apr_file_remove(error_output, r->pool);
 
     // SVG-Datei oeffnen
     apr_file_t *svg_file;
