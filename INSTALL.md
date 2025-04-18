@@ -13,3 +13,9 @@ apxs -c -i mod_mermaid.c
 a2enmod mermaid
 service apache2 restart
 ```
+
+### sudo nano /etc/apache2/envvars
+```sh
+export PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+export PUPPETEER_CACHE_DIR=/var/cache/puppeteer
+```
