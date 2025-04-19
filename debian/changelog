@@ -1,5 +1,0 @@
-mod-mermaid (1.0-1) unstable; urgency=medium
-
-  * Initial release of mod_mermaid, an Apache module for rendering Mermaid diagrams.
-
- -- Christian Eichert <c@zp1.net>  Fri, 18 Apr 2025 18:00:00 +0200
