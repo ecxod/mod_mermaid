@@ -1,5 +1,15 @@
+.libs/
 **/*.o
 **/*.lo
 **/*.la
 **/*.so
-.libs/
+**/debian/debhelper-build-stamp
+**/debian/files
+**/debian/mod-mermaid.substvars
+**/debian/mod-mermaid/
+**/*.deb
+**/*.buildinfo
+**/*.changes
+**/*.dsc
+**/*.tar.gz
+**/*.tar.xz
