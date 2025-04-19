@@ -97,7 +97,7 @@ sudo chmod -R u+rw /var/cache/puppeteer
 ```
 
 ## Installing via Debian Package
-1. Download the latest `.deb` package from the [Releases](https://github.com/<your-username>/mod_mermaid/releases) page.
+1. Download the latest `.deb` package from the [Releases](https://github.com/ecxod/mod_mermaid/releases) page.
 2. Install the package:
    ```bash
    sudo dpkg -i mod-mermaid_1.0-1_amd64.deb
