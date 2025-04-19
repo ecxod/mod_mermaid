@@ -3,6 +3,7 @@
 **/*.lo
 **/*.la
 **/*.so
+**/*.slo
 **/debian/debhelper-build-stamp
 **/debian/files
 **/debian/mod-mermaid.substvars
