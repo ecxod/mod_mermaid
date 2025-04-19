@@ -1,0 +1,2 @@
+mod-mermaid.load etc/apache2/mods-available/
+mod-mermaid.conf etc/apache2/mods-available/
