@@ -104,6 +104,7 @@ sudo chmod -R u+rw /var/cache/puppeteer
    sudo apt install -f
 
 ## Usage
+
 1. Place your Mermaid diagram files (`.mmd`) in a directory served by Apache (e.g., `/var/www/html/diagrams/`).
 2. Access the `.mmd` file via your browser, e.g., `http://your-server/diagrams/FlowChart.mmd`.
 3. The module will render the diagram as an SVG embedded in a simple HTML page.
@@ -114,6 +115,36 @@ graph TD
     A[Start] --> B[Process]
     B --> C[End]
 ```
+## JavaScript-Free Diagram Rendering for Console Browsers
+
+`mod_mermaid` is perfect for serving Mermaid diagrams without relying on client-side JavaScript, making it ideal for lightweight or text-based browsers like `w3m`, `lynx`, or other minimalistic clients. By rendering `.mmd` files as SVGs server-side, the module ensures that diagrams are accessible in environments where JavaScript is disabled or unavailable, such as:
+
+- **Console Browsers**: Tools like `w3m` (with SVG support) can display diagrams directly in the terminal.
+- **Low-Resource Devices**: Embedded systems or legacy clients benefit from pre-rendered SVGs.
+- **Security-Conscious Environments**: Avoid JavaScript to reduce attack surfaces in sensitive intranet setups.
+
+### How It Works
+1. Place your `.mmd` files in an Apache-served directory.
+2. Configure Apache to use the `mermaid` handler for `.mmd` files (see [Installation](#installation)).
+3. Access the diagram via a URL (e.g., `http://your-server/diagrams/FlowChart.mmd`) in a console browser like `w3m`:
+   ```bash
+   w3m http://your-server/diagrams/FlowChart.mmd
+   ```
+4. The module converts the `.mmd` file to an SVG embedded in a simple HTML page, which is rendered without any client-side JavaScript.
+
+## Benefits
+
+- No JavaScript Overhead: Diagrams are fully rendered on the server, ensuring compatibility with JavaScript-free clients.
+- Lightweight: Minimal HTML and SVG output keeps pages fast and accessible.
+- Broad Compatibility: Works with any browser or client that supports basic HTML and SVG, including terminal-based tools.
+
+## Notes
+
+- Ensure your console browser (e.g., w3m) is compiled with SVG support for optimal rendering. Check your browser's documentation for details.
+- For the best experience, keep .mmd diagrams simple, as complex SVGs may challenge some text-based browsers.
+
+This feature makes mod_mermaid a versatile tool for delivering dynamic diagrams in constrained or security-focused environments.
+
 
 ## Troubleshooting
 - **Check Apache Logs**: If diagrams fail to render, check the Apache error logs for details:
