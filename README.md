@@ -55,7 +55,7 @@ To use `mod_mermaid`, you need the following installed on your system:
 ### Step 2: Compile and Install the Module
 1. Clone this repository:
    ```bash
-   git clone https://github.com/<your-username>/mod_mermaid.git
+   git clone https://github.com/ecxod/mod_mermaid.git
    cd mod_mermaid
    ```
 
