@@ -27,3 +27,18 @@ apxs -c -i mod_mermaid.c
 a2enmod mermaid
 service apache2 restart
 ```
+
+### Debian Paket
+```txt
+mod_mermaid-1.0/
+├── debian/
+│   ├── changelog
+│   ├── control
+│   ├── copyright
+│   ├── rules
+│   ├── mod-mermaid.load
+│   └── mod-mermaid.conf
+├── mod_mermaid.c
+├── README.md
+└── LICENSE
+```
