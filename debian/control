@@ -1,0 +1,15 @@
+Source: mod-mermaid
+Section: httpd
+Priority: optional
+Maintainer: Christian Eichert <c@zp1.net>
+Build-Depends: debhelper (>= 13), apache2-dev, libapr1-dev
+Standards-Version: 4.6.2
+Homepage: https://github.com/ecxod/mod_mermaid
+
+Package: mod-mermaid
+Architecture: any
+Depends: ${misc:Depends}, apache2 (>= 2.4), nodejs, npm, chromium
+Description: Apache module for rendering Mermaid diagrams
+ mod_mermaid is an Apache module that dynamically renders Mermaid diagram
+ files (.mmd) as SVG in the browser. It uses the Mermaid CLI (mmdc) to
+ convert diagrams on-the-fly, requiring no caching or additional tools.
