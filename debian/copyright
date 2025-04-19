@@ -1,0 +1,8 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: mod_mermaid
+Upstream-Contact: Christian Eichert <c@zp1.net>
+Source: https://github.com/ecxod/mod_mermaid
+
+Files: *
+Copyright: 2025 Christian Eichert
+License: MIT
