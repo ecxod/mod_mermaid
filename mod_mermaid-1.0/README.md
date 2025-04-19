@@ -96,6 +96,13 @@ sudo chown -R www-data:www-data /var/cache/puppeteer
 sudo chmod -R u+rw /var/cache/puppeteer
 ```
 
+## Installing via Debian Package
+1. Download the latest `.deb` package from the [Releases](https://github.com/<your-username>/mod_mermaid/releases) page.
+2. Install the package:
+   ```bash
+   sudo dpkg -i mod-mermaid_1.0-1_amd64.deb
+   sudo apt install -f
+
 ## Usage
 1. Place your Mermaid diagram files (`.mmd`) in a directory served by Apache (e.g., `/var/www/html/diagrams/`).
 2. Access the `.mmd` file via your browser, e.g., `http://your-server/diagrams/FlowChart.mmd`.
